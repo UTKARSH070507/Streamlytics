@@ -19,6 +19,7 @@ export default function Dashboard() {
   const {
     filteredData,
     rawData,
+    globalRevenueData,
     selectedCountry,
     selectedGenre,
     selectedSubscription,
@@ -75,8 +76,8 @@ export default function Dashboard() {
   }, [filteredData]);
 
   const quarterlyRevenueData = useMemo(
-    () => getQuarterlyRevenueTrajectory(filteredData),
-    [filteredData]
+    () => (globalRevenueData && globalRevenueData.length > 0 ? globalRevenueData : getQuarterlyRevenueTrajectory(filteredData)),
+    [globalRevenueData, filteredData]
   );
 
   return (
