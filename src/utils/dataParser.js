@@ -226,3 +226,63 @@ export const getYearlyRevenueDistribution = (data) => {
     .map(([year, revenue]) => ({ year, revenue }))
     .sort((a, b) => Number(a.year) - Number(b.year));
 };
+
+/**
+ * Get cumulative quarterly revenue trajectory from filtered data.
+ * Uses login date quarter labels like Mar 2024, Jun 2024, etc.
+ */
+export const getQuarterlyRevenueTrajectory = (data) => {
+  const quarterMap = new Map();
+  const quarterEndMonths = ['Mar', 'Jun', 'Sep', 'Dec'];
+
+  data.forEach((user) => {
+    const parsed = parseLoginDate(user.lastLogin);
+    if (!parsed) return;
+
+    const year = parsed.getFullYear();
+    const quarter = Math.floor(parsed.getMonth() / 3) + 1;
+    const key = `${year}-Q${quarter}`;
+    const quarterRevenue = (Number(user.monthlyIncome) || 0) * 3;
+
+    quarterMap.set(key, (quarterMap.get(key) || 0) + quarterRevenue);
+  });
+
+  const sortedQuarters = Array.from(quarterMap.entries()).sort(([a], [b]) => {
+    const [yearA, qA] = a.split('-Q').map(Number);
+    const [yearB, qB] = b.split('-Q').map(Number);
+    if (yearA !== yearB) return yearA - yearB;
+    return qA - qB;
+  });
+
+  let runningRevenue = 0;
+  return sortedQuarters.map(([key, revenue]) => {
+    const [year, quarter] = key.split('-Q').map(Number);
+    runningRevenue += revenue;
+    return {
+      period: `${quarterEndMonths[quarter - 1]} ${year}`,
+      revenue: runningRevenue,
+      quarterRevenue: revenue,
+    };
+  });
+};
+
+function parseLoginDate(value) {
+  if (!value) return null;
+
+  const asString = String(value).trim();
+  const direct = new Date(asString);
+  if (!Number.isNaN(direct.getTime())) return direct;
+
+  const match = asString.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (!match) return null;
+
+  const first = Number(match[1]);
+  const second = Number(match[2]);
+  let year = Number(match[3]);
+  if (year < 100) year += 2000;
+
+  const month = first > 12 ? second : first;
+  const day = first > 12 ? first : second;
+  const parsed = new Date(year, month - 1, day);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}

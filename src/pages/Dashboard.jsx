@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useDataStore } from '../hooks/useDataStore';
-import { getYearlyRevenueDistribution } from '../utils/dataParser';
+import { getQuarterlyRevenueTrajectory } from '../utils/dataParser';
 import GenreChart from '../components/charts/GenreChart';
 import CountryChart from '../components/charts/CountryChart';
 import SubscriptionChart from '../components/charts/SubscriptionChart';
@@ -74,8 +74,8 @@ export default function Dashboard() {
     };
   }, [filteredData]);
 
-  const yearlyRevenueData = useMemo(
-    () => getYearlyRevenueDistribution(filteredData),
+  const quarterlyRevenueData = useMemo(
+    () => getQuarterlyRevenueTrajectory(filteredData),
     [filteredData]
   );
 
@@ -188,7 +188,7 @@ export default function Dashboard() {
             >
               <div className="bg-netflix-dark border border-netflix-red/30 rounded-lg p-4 sm:p-6">
                 <div className="flex items-center justify-between gap-3 mb-3">
-                  <h2 className="text-lg sm:text-xl font-bold text-white">Yearly Revenue Trend</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">Global Revenue</h2>
                   <button
                     type="button"
                     onClick={() => setShowRevenueTrend(false)}
@@ -197,7 +197,7 @@ export default function Dashboard() {
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <RevenueTrendChart data={yearlyRevenueData} />
+                <RevenueTrendChart data={quarterlyRevenueData} />
               </div>
             </motion.div>
           )}
