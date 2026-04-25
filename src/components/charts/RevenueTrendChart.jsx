@@ -47,7 +47,7 @@ export default function RevenueTrendChart({ data }) {
         initial="hidden"
         animate="visible"
       >
-        Not enough date information to calculate quarterly trajectory.
+        Global Revenue sheet data is not available.
       </motion.div>
     );
   }

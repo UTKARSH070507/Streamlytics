@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { parseExcelData } from './utils/dataParser';
+import { parseExcelData, parseGlobalRevenueData } from './utils/dataParser';
 import { useDataStore } from './hooks/useDataStore';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -10,13 +10,19 @@ import './index.css';
 export default function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const setRawData = useDataStore((state) => state.setRawData);
+  const setGlobalRevenueData = useDataStore((state) => state.setGlobalRevenueData);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await parseExcelData();
+        const [data, globalRevenueData] = await Promise.all([
+          parseExcelData(),
+          parseGlobalRevenueData(),
+        ]);
+
         if (data && data.length > 0) {
           setRawData(data);
+          setGlobalRevenueData(globalRevenueData);
           setDataLoaded(true);
         }
       } catch (error) {
@@ -25,7 +31,7 @@ export default function App() {
     };
 
     loadData();
-  }, [setRawData]);
+  }, [setRawData, setGlobalRevenueData]);
 
   return (
     <Router>

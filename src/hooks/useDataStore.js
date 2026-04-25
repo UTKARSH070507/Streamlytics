@@ -16,6 +16,7 @@ export const useDataStore = create((set, get) => ({
   // Data
   rawData: [],
   filteredData: [],
+  globalRevenueData: [],
   loading: true,
   error: null,
 
@@ -64,6 +65,10 @@ export const useDataStore = create((set, get) => ({
       churnRiskData,
       regionData,
     });
+  },
+
+  setGlobalRevenueData: (data) => {
+    set({ globalRevenueData: data });
   },
 
   // Filter functions

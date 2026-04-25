@@ -46,6 +46,43 @@ export const parseExcelData = async () => {
 };
 
 /**
+ * Parse the workbook's Global Revenue sheet.
+ * The sheet already contains quarterly revenue from 2019 onward.
+ */
+export const parseGlobalRevenueData = async () => {
+  try {
+    const response = await fetch('/Netflix_Refined_Final.xlsx');
+    const arrayBuffer = await response.arrayBuffer();
+
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const sheet = workbook.Sheets['Global Revenue'];
+
+    if (!sheet) return [];
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
+
+    return rows
+      .map((row) => {
+        const date = parseGlobalRevenueDate(row.Date);
+        const revenue = parseCurrencyValue(row['Global Revenue']);
+
+        if (!date || revenue === null) return null;
+
+        return {
+          period: formatQuarterLabel(date),
+          revenue,
+          date,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.date - b.date);
+  } catch (error) {
+    console.error('Error parsing Global Revenue sheet:', error);
+    return [];
+  }
+};
+
+/**
  * Generate aggregated statistics
  */
 export const generateStats = (data) => {
@@ -247,23 +284,30 @@ export const getQuarterlyRevenueTrajectory = (data) => {
     quarterMap.set(key, (quarterMap.get(key) || 0) + quarterRevenue);
   });
 
-  const sortedQuarters = Array.from(quarterMap.entries()).sort(([a], [b]) => {
-    const [yearA, qA] = a.split('-Q').map(Number);
-    const [yearB, qB] = b.split('-Q').map(Number);
-    if (yearA !== yearB) return yearA - yearB;
-    return qA - qB;
-  });
+  const now = new Date();
+  const startYear = 2019;
+  const currentYear = now.getFullYear();
+  const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
 
   let runningRevenue = 0;
-  return sortedQuarters.map(([key, revenue]) => {
-    const [year, quarter] = key.split('-Q').map(Number);
-    runningRevenue += revenue;
-    return {
-      period: `${quarterEndMonths[quarter - 1]} ${year}`,
-      revenue: runningRevenue,
-      quarterRevenue: revenue,
-    };
-  });
+  const trajectory = [];
+
+  for (let year = startYear; year <= currentYear; year++) {
+    const maxQuarter = year === currentYear ? currentQuarter : 4;
+    for (let quarter = 1; quarter <= maxQuarter; quarter++) {
+      const key = `${year}-Q${quarter}`;
+      const quarterRevenue = quarterMap.get(key) || 0;
+      runningRevenue += quarterRevenue;
+
+      trajectory.push({
+        period: `${quarterEndMonths[quarter - 1]} ${year}`,
+        revenue: runningRevenue,
+        quarterRevenue,
+      });
+    }
+  }
+
+  return trajectory;
 };
 
 function parseLoginDate(value) {
@@ -285,4 +329,36 @@ function parseLoginDate(value) {
   const day = first > 12 ? first : second;
   const parsed = new Date(year, month - 1, day);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function parseGlobalRevenueDate(value) {
+  if (!value) return null;
+
+  const parts = String(value).trim().split('-');
+  if (parts.length !== 3) return null;
+
+  const day = Number(parts[0]);
+  const month = Number(parts[1]);
+  let year = Number(parts[2]);
+  if (!day || !month || !year) return null;
+  if (year < 100) year += 2000;
+
+  const parsed = new Date(year, month - 1, day);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function parseCurrencyValue(value) {
+  if (value == null) return null;
+  const numeric = String(value).replace(/[^0-9.-]/g, '');
+  if (!numeric) return null;
+  const parsed = Number(numeric);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function formatQuarterLabel(date) {
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const quarterLabels = ['Mar', 'Jun', 'Sep', 'Dec'];
+  const quarter = Math.floor(month / 3);
+  return `${quarterLabels[quarter]} ${year}`;
 }
