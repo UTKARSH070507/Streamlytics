@@ -21,7 +21,7 @@ const itemVariants = {
   },
 };
 
-export default function StatsOverview({ stats }) {
+export default function StatsOverview({ stats, onRevenueClick, isRevenuePanelOpen }) {
   const cards = [
     {
       label: 'Total Users',
@@ -52,6 +52,7 @@ export default function StatsOverview({ stats }) {
       value: stats.totalRevenue,
       icon: DollarSign,
       color: 'from-purple-500 to-purple-700',
+      clickable: true,
     },
   ];
 
@@ -65,21 +66,29 @@ export default function StatsOverview({ stats }) {
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
-          <motion.div
+          <motion.button
             key={index}
             variants={itemVariants}
-            className={`group bg-gradient-to-br ${card.color} rounded-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl`}
+            type="button"
+            onClick={card.clickable ? onRevenueClick : undefined}
+            className={`group w-full text-left bg-gradient-to-br ${card.color} rounded-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl ${card.clickable ? 'cursor-pointer' : 'cursor-default'}`}
+            aria-label={card.clickable ? 'Toggle yearly revenue chart' : undefined}
           >
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium opacity-90 mb-1">{card.label}</p>
                 <p className="text-2xl font-bold">{card.value}</p>
+                {card.clickable && (
+                  <p className="text-xs opacity-85 mt-2">
+                    {isRevenuePanelOpen ? 'Click to hide yearly trend' : 'Click to view yearly trend'}
+                  </p>
+                )}
               </div>
               <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition">
                 <Icon className="w-5 h-5" />
               </div>
             </div>
-          </motion.div>
+          </motion.button>
         );
       })}
     </motion.div>

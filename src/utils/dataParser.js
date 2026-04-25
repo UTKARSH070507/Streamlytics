@@ -204,3 +204,25 @@ export const getCountryMetrics = (data) => {
     }))
     .sort((a, b) => b.users - a.users);
 };
+
+/**
+ * Get yearly revenue trend from filtered data.
+ * Revenue is annualized as monthlyIncome * 12 and grouped by last login year.
+ */
+export const getYearlyRevenueDistribution = (data) => {
+  const yearlyRevenue = {};
+
+  data.forEach((user) => {
+    const rawDate = String(user.lastLogin || '');
+    const yearMatch = rawDate.match(/(19|20)\d{2}/);
+    if (!yearMatch) return;
+
+    const year = yearMatch[0];
+    const annualRevenue = (Number(user.monthlyIncome) || 0) * 12;
+    yearlyRevenue[year] = (yearlyRevenue[year] || 0) + annualRevenue;
+  });
+
+  return Object.entries(yearlyRevenue)
+    .map(([year, revenue]) => ({ year, revenue }))
+    .sort((a, b) => Number(a.year) - Number(b.year));
+};
