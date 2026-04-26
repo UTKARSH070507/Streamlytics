@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   CartesianGrid,
@@ -50,8 +50,33 @@ const metricMeta = {
   },
 };
 
-function MetricSparkline({ data, metricKey, metricLabel }) {
+function getYAxisDomain(values) {
+  if (!values.length) return [0, 1];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+
+  if (min === max) {
+    const pad = Math.max(1, Math.abs(max * 0.1));
+    return [Math.max(0, min - pad), max + pad];
+  }
+
+  const pad = (max - min) * 0.12;
+  return [Math.max(0, min - pad), max + pad];
+}
+
+function MetricSparkline({ data, metricKey }) {
   const meta = metricMeta[metricKey];
+  const metricLabel = meta.label;
+
+  const chartData = useMemo(
+    () => data.filter((row) => row[metricKey] !== null && row[metricKey] !== undefined),
+    [data, metricKey]
+  );
+
+  const domain = useMemo(
+    () => getYAxisDomain(chartData.map((row) => Number(row[metricKey]))),
+    [chartData, metricKey]
+  );
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload[0]) {
@@ -81,16 +106,19 @@ function MetricSparkline({ data, metricKey, metricLabel }) {
         <div className="h-3 w-3 rounded-full" style={{ backgroundColor: meta.color }} />
       </div>
 
-      <div className="h-48">
+      {chartData.length === 0 ? (
+        <p className="text-netflix-gray text-sm py-10 text-center">No data available for this metric.</p>
+      ) : (
+      <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+          <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
             <CartesianGrid strokeDasharray="1 0" stroke="#ffffff26" vertical />
             <XAxis
               dataKey="period"
               tick={{ fontSize: 10, fill: '#9ca3af' }}
               tickLine={false}
               axisLine={false}
-              interval={Math.max(0, Math.floor(data.length / 6))}
+              interval={Math.max(0, Math.floor(chartData.length / 8))}
             />
             <YAxis
               tick={{ fontSize: 10, fill: '#9ca3af' }}
@@ -98,6 +126,7 @@ function MetricSparkline({ data, metricKey, metricLabel }) {
               axisLine={false}
               tickFormatter={meta.yFormatter}
               width={46}
+              domain={domain}
             />
             <Tooltip content={<CustomTooltip />} />
             <Line
@@ -114,11 +143,14 @@ function MetricSparkline({ data, metricKey, metricLabel }) {
           </LineChart>
         </ResponsiveContainer>
       </div>
+      )}
     </motion.div>
   );
 }
 
-export default function KpiTrendPanel({ data }) {
+export default function KpiTrendPanel({ data, metricKey }) {
+  const meta = metricMeta[metricKey] || metricMeta.totalUsers;
+
   if (!Array.isArray(data) || data.length === 0) {
     return (
       <motion.div
@@ -142,17 +174,12 @@ export default function KpiTrendPanel({ data }) {
       <div className="flex items-start justify-between gap-4 mb-5">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#f5c451] mb-2">Insights</p>
-          <h3 className="text-2xl sm:text-4xl font-bold text-netflix-light">KPI trends</h3>
+          <h3 className="text-2xl sm:text-4xl font-bold text-netflix-light">{meta.label} trend</h3>
         </div>
         <p className="text-sm sm:text-xl text-netflix-light/70">Quarterly trajectory</p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <MetricSparkline data={data} metricKey="totalUsers" metricLabel="Total Users" />
-        <MetricSparkline data={data} metricKey="avgWatchTime" metricLabel="Avg Watch Time" />
-        <MetricSparkline data={data} metricKey="avgSatisfaction" metricLabel="Satisfaction" />
-        <MetricSparkline data={data} metricKey="avgEngagement" metricLabel="Engagement" />
-      </div>
+      <MetricSparkline data={data} metricKey={metricKey} />
     </motion.div>
   );
 }

@@ -25,7 +25,7 @@ export default function StatsOverview({
   stats,
   onKpiClick,
   onRevenueClick,
-  isKpiPanelOpen,
+  activeKpiMetric,
   isRevenuePanelOpen,
 }) {
   const cards = [
@@ -35,6 +35,7 @@ export default function StatsOverview({
       icon: Users,
       color: 'from-netflix-red to-red-600',
       clickable: true,
+      metricKey: 'totalUsers',
       helperText: 'Click to view KPI trends',
     },
     {
@@ -42,18 +43,27 @@ export default function StatsOverview({
       value: stats.avgWatchTime + ' hrs',
       icon: TrendingUp,
       color: 'from-blue-500 to-blue-700',
+      clickable: true,
+      metricKey: 'avgWatchTime',
+      helperText: 'Click to view watch time trend',
     },
     {
       label: 'Satisfaction',
       value: stats.avgSatisfaction + '/10',
       icon: Smile,
       color: 'from-green-500 to-green-700',
+      clickable: true,
+      metricKey: 'avgSatisfaction',
+      helperText: 'Click to view satisfaction trend',
     },
     {
       label: 'Engagement',
       value: stats.avgEngagement + '/10',
       icon: Zap,
       color: 'from-yellow-500 to-yellow-700',
+      clickable: true,
+      metricKey: 'avgEngagement',
+      helperText: 'Click to view engagement trend',
     },
     {
       label: 'Revenue',
@@ -79,10 +89,10 @@ export default function StatsOverview({
             variants={itemVariants}
             type="button"
             onClick={
-              card.label === 'Total Users'
-                ? onKpiClick
-                : card.label === 'Revenue'
+              card.label === 'Revenue'
                   ? onRevenueClick
+                  : card.clickable
+                    ? () => onKpiClick(card.metricKey)
                   : undefined
             }
             className={`group w-full text-left bg-gradient-to-br ${card.color} rounded-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl ${card.clickable ? 'cursor-pointer' : 'cursor-default'}`}
@@ -98,9 +108,9 @@ export default function StatsOverview({
               <div>
                 <p className="text-sm font-medium opacity-90 mb-1">{card.label}</p>
                 <p className="text-2xl font-bold">{card.value}</p>
-                {card.label === 'Total Users' && (
+                {card.clickable && card.label !== 'Revenue' && (
                   <p className="text-xs opacity-85 mt-2">
-                    {isKpiPanelOpen ? 'Click to hide KPI trends' : card.helperText}
+                    {activeKpiMetric === card.metricKey ? 'Click to hide trend' : card.helperText}
                   </p>
                 )}
                 {card.clickable && card.label === 'Revenue' && (

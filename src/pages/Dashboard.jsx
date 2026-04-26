@@ -36,7 +36,7 @@ export default function Dashboard() {
   const activeFilters = getActiveFilterCount();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showRevenueTrend, setShowRevenueTrend] = useState(false);
-  const [showKpiTrend, setShowKpiTrend] = useState(false);
+  const [activeKpiMetric, setActiveKpiMetric] = useState(null);
   const activeFilterChips = [
     { type: 'country', label: 'Country', value: selectedCountry },
     { type: 'genre', label: 'Genre', value: selectedGenre },
@@ -175,21 +175,21 @@ export default function Dashboard() {
         {stats && (
           <StatsOverview
             stats={stats}
-            onKpiClick={() => {
-              setShowKpiTrend((prev) => !prev);
+            onKpiClick={(metricKey) => {
+              setActiveKpiMetric((prev) => (prev === metricKey ? null : metricKey));
               setShowRevenueTrend(false);
             }}
             onRevenueClick={() => {
               setShowRevenueTrend((prev) => !prev);
-              setShowKpiTrend(false);
+              setActiveKpiMetric(null);
             }}
-            isKpiPanelOpen={showKpiTrend}
+            activeKpiMetric={activeKpiMetric}
             isRevenuePanelOpen={showRevenueTrend}
           />
         )}
 
         <AnimatePresence>
-          {showKpiTrend && (
+          {activeKpiMetric && (
             <motion.div
               initial={{ opacity: 0, height: 0, y: -8 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
@@ -199,16 +199,16 @@ export default function Dashboard() {
             >
               <div className="bg-netflix-dark border border-netflix-red/30 rounded-lg p-4 sm:p-6">
                 <div className="flex items-center justify-between gap-3 mb-3">
-                  <h2 className="text-lg sm:text-xl font-bold text-white">Quarterly KPI Trends</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">KPI Trend</h2>
                   <button
                     type="button"
-                    onClick={() => setShowKpiTrend(false)}
+                    onClick={() => setActiveKpiMetric(null)}
                     className="text-netflix-red hover:text-netflix-light transition"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <KpiTrendPanel data={getQuarterlyKpiTrends(filteredData)} />
+                <KpiTrendPanel data={getQuarterlyKpiTrends(filteredData)} metricKey={activeKpiMetric} />
               </div>
             </motion.div>
           )}
