@@ -75,11 +75,25 @@ export default function WorldMap() {
 
     // Initialize map
     if (!mapInstanceRef.current) {
-      mapInstanceRef.current = L.map(mapRef.current).setView([20, 0], 2);
+      mapInstanceRef.current = L.map(mapRef.current, {
+        zoomControl: false,
+        minZoom: 2,
+        maxZoom: 5,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        worldCopyJump: false,
+        maxBounds: [[-85, -180], [85, 180]],
+        maxBoundsViscosity: 1.0,
+      }).setView([20, 0], 2);
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CartoDB contributors',
-        maxZoom: 19,
+        maxZoom: 5,
+        minZoom: 2,
+        noWrap: true,
+        bounds: [[-85, -180], [85, 180]],
       }).addTo(mapInstanceRef.current);
     }
 
@@ -133,6 +147,8 @@ export default function WorldMap() {
             </div>
           `, {
             maxWidth: 250,
+            autoPan: false,
+            closeButton: false,
           })
           .on('click', () => {
             applyFilter('country', country.country);
@@ -187,7 +203,7 @@ export default function WorldMap() {
         style={{ background: '#1a1a1a' }}
       />
       <p className="text-center text-xs text-netflix-gray mt-2">
-        🌍 Circle size represents user count • Hover for details • Click on circles to filter and zoom • Larger circles = more users
+        🌍 Circle size represents user count • Hover for details • Click circles to filter and focus • Scroll zoom disabled for stable navigation
       </p>
     </motion.div>
   );
