@@ -134,7 +134,7 @@ function MetricSparkline({ data, metricKey }) {
               width={46}
               domain={domain}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Line
               type="monotone"
               dataKey={metricKey}

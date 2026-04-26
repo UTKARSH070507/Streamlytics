@@ -46,7 +46,7 @@ export default function AgeGroupChart() {
             tick={{ fontSize: 12, fill: '#808080' }}
           />
           <YAxis tick={{ fontSize: 12, fill: '#808080' }} />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
           <Bar
             dataKey="value"
             fill="#f59e0b"

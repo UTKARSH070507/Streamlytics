@@ -57,7 +57,7 @@ export default function FilterPanel() {
     const displayItems = limit ? items.slice(0, limit) : items;
 
     return (
-      <motion.div className="bg-netflix-dark border border-netflix-red/20 rounded-lg p-4 lg:sticky lg:top-24">
+      <motion.div className="bg-netflix-dark border border-netflix-red/20 rounded-lg p-4">
         <h3 className="text-sm font-bold text-netflix-red mb-3 uppercase tracking-wider">
           {title}
         </h3>
@@ -76,14 +76,14 @@ export default function FilterPanel() {
                 key={value}
                 variants={itemVariants}
                 onClick={() => applyFilter(filterType, value)}
-                className={`w-full text-left px-3 py-2 rounded-lg transition text-sm font-medium ${
+                className={`w-full text-left px-3 py-2 rounded-lg transition text-sm font-medium overflow-hidden ${
                   selected
                     ? 'bg-netflix-red text-white shadow-lg shadow-netflix-red/50'
                     : 'bg-white/5 text-netflix-gray hover:bg-white/10 hover:text-netflix-light'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span>{value}</span>
+                  <span className="truncate pr-2">{value}</span>
                   {item.value && (
                     <span className={`text-xs px-2 py-1 rounded ${
                       selected ? 'bg-white/20' : 'bg-white/10'

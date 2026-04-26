@@ -247,7 +247,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className={`${showMobileFilters ? 'block' : 'hidden'} lg:block lg:col-span-1`}
+            className={`${showMobileFilters ? 'block' : 'hidden'} lg:block lg:col-span-1 lg:sticky lg:top-24 lg:self-start`}
           >
             <FilterPanel />
           </motion.div>

@@ -67,7 +67,7 @@ export default function SubscriptionChart() {
               />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
           <Legend
             wrapperStyle={{
               color: '#f5f5f1',

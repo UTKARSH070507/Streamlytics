@@ -92,7 +92,7 @@ export default function RevenueTrendChart({ data }) {
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
           <Line
             type="monotone"
             dataKey="revenue"

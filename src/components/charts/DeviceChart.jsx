@@ -46,7 +46,7 @@ export default function DeviceChart() {
             tick={{ fontSize: 12, fill: '#808080' }}
           />
           <YAxis tick={{ fontSize: 12, fill: '#808080' }} />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
           <Bar
             dataKey="value"
             fill="#10b981"

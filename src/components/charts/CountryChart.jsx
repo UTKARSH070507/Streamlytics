@@ -53,7 +53,7 @@ export default function CountryChart() {
             height={80}
           />
           <YAxis tick={{ fontSize: 12, fill: '#808080' }} />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
           <Bar
             dataKey="value"
             fill="#e50914"

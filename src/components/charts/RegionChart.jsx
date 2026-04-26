@@ -51,7 +51,7 @@ export default function RegionChart() {
             tick={{ fontSize: 12, fill: '#808080' }}
             width={100}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
           <Bar
             dataKey="value"
             fill="#8b5cf6"
