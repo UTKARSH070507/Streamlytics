@@ -76,13 +76,13 @@ export default function WorldMap() {
     // Initialize map
     if (!mapInstanceRef.current) {
       mapInstanceRef.current = L.map(mapRef.current, {
-        zoomControl: false,
+        zoomControl: true,
         minZoom: 2,
-        maxZoom: 5,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false,
+        maxZoom: 8,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
         worldCopyJump: false,
         maxBounds: [[-85, -180], [85, 180]],
         maxBoundsViscosity: 1.0,
@@ -90,7 +90,7 @@ export default function WorldMap() {
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CartoDB contributors',
-        maxZoom: 5,
+        maxZoom: 8,
         minZoom: 2,
         noWrap: true,
         bounds: [[-85, -180], [85, 180]],
@@ -203,7 +203,7 @@ export default function WorldMap() {
         style={{ background: '#1a1a1a' }}
       />
       <p className="text-center text-xs text-netflix-gray mt-2">
-        🌍 Circle size represents user count • Hover for details • Click circles to filter and focus • Scroll zoom disabled for stable navigation
+        🌍 Circle size represents user count • Hover for details • Click circles to filter and focus • Zoom enabled with one-world bounds
       </p>
     </motion.div>
   );
