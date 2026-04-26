@@ -68,10 +68,16 @@ function MetricSparkline({ data, metricKey }) {
   const meta = metricMeta[metricKey];
   const metricLabel = meta.label;
 
-  const chartData = useMemo(
-    () => data.filter((row) => row[metricKey] !== null && row[metricKey] !== undefined),
-    [data, metricKey]
-  );
+  const chartData = useMemo(() => {
+    const series = data.filter((row) => row[metricKey] !== null && row[metricKey] !== undefined);
+
+    if (metricKey !== 'totalUsers') return series;
+
+    const firstNonZeroIndex = series.findIndex((row) => Number(row.totalUsers) > 0);
+    if (firstNonZeroIndex === -1) return [];
+
+    return series.slice(firstNonZeroIndex);
+  }, [data, metricKey]);
 
   const domain = useMemo(
     () => getYAxisDomain(chartData.map((row) => Number(row[metricKey]))),

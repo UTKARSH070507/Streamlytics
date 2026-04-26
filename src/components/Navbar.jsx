@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BarChart3, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const location = useLocation();
+  const [logoError, setLogoError] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
@@ -20,8 +21,17 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="relative">
-              <BarChart3 className="w-8 h-8 text-netflix-red group-hover:text-netflix-light transition" />
-              <div className="absolute inset-0 bg-netflix-red/20 rounded-lg blur-lg group-hover:blur-xl transition"></div>
+              {!logoError ? (
+                <img
+                  src="/streamlytics-logo.svg"
+                  alt="Streamlytics logo"
+                  className="w-8 h-8 object-contain rounded-lg"
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <BarChart3 className="w-8 h-8 text-netflix-red group-hover:text-netflix-light transition" />
+              )}
+              <div className="absolute inset-0 bg-netflix-red/20 rounded-lg blur-lg group-hover:blur-xl transition -z-10"></div>
             </div>
             <span className="hidden sm:inline text-lg sm:text-xl font-bold text-netflix-light group-hover:text-netflix-red transition">
               Streamlytics
