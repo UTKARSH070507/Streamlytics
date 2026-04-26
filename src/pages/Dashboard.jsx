@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useDataStore } from '../hooks/useDataStore';
-import { getQuarterlyRevenueTrajectory } from '../utils/dataParser';
+import { getQuarterlyKpiTrends, getQuarterlyRevenueTrajectory } from '../utils/dataParser';
 import GenreChart from '../components/charts/GenreChart';
 import CountryChart from '../components/charts/CountryChart';
 import SubscriptionChart from '../components/charts/SubscriptionChart';
@@ -14,6 +14,7 @@ import WorldMap from '../components/WorldMap';
 import FilterPanel from '../components/FilterPanel';
 import StatsOverview from '../components/StatsOverview';
 import RevenueTrendChart from '../components/charts/RevenueTrendChart';
+import KpiTrendPanel from '../components/charts/KpiTrendPanel';
 
 export default function Dashboard() {
   const {
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const activeFilters = getActiveFilterCount();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showRevenueTrend, setShowRevenueTrend] = useState(false);
+  const [showKpiTrend, setShowKpiTrend] = useState(false);
   const activeFilterChips = [
     { type: 'country', label: 'Country', value: selectedCountry },
     { type: 'genre', label: 'Genre', value: selectedGenre },
@@ -173,10 +175,44 @@ export default function Dashboard() {
         {stats && (
           <StatsOverview
             stats={stats}
-            onRevenueClick={() => setShowRevenueTrend((prev) => !prev)}
+            onKpiClick={() => {
+              setShowKpiTrend((prev) => !prev);
+              setShowRevenueTrend(false);
+            }}
+            onRevenueClick={() => {
+              setShowRevenueTrend((prev) => !prev);
+              setShowKpiTrend(false);
+            }}
+            isKpiPanelOpen={showKpiTrend}
             isRevenuePanelOpen={showRevenueTrend}
           />
         )}
+
+        <AnimatePresence>
+          {showKpiTrend && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -8 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -8 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="mt-4 overflow-hidden"
+            >
+              <div className="bg-netflix-dark border border-netflix-red/30 rounded-lg p-4 sm:p-6">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <h2 className="text-lg sm:text-xl font-bold text-white">Quarterly KPI Trends</h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowKpiTrend(false)}
+                    className="text-netflix-red hover:text-netflix-light transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <KpiTrendPanel data={getQuarterlyKpiTrends(filteredData)} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {showRevenueTrend && (

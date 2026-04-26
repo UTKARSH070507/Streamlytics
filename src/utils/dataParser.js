@@ -310,6 +310,67 @@ export const getQuarterlyRevenueTrajectory = (data) => {
   return trajectory;
 };
 
+/**
+ * Build quarterly KPI trends for total users, watch time, satisfaction, and engagement.
+ */
+export const getQuarterlyKpiTrends = (data) => {
+  const quarterMap = new Map();
+  const quarterEndMonths = ['Mar', 'Jun', 'Sep', 'Dec'];
+  const startYear = 2019;
+  const current = new Date();
+  const currentYear = current.getFullYear();
+  const currentQuarter = Math.floor(current.getMonth() / 3) + 1;
+
+  data.forEach((user) => {
+    const parsed = parseLoginDate(user.lastLogin);
+    if (!parsed) return;
+
+    const year = parsed.getFullYear();
+    const quarter = Math.floor(parsed.getMonth() / 3) + 1;
+    const key = `${year}-Q${quarter}`;
+
+    if (!quarterMap.has(key)) {
+      quarterMap.set(key, {
+        count: 0,
+        totalWatchTime: 0,
+        totalSatisfaction: 0,
+        totalEngagement: 0,
+      });
+    }
+
+    const bucket = quarterMap.get(key);
+    bucket.count += 1;
+    bucket.totalWatchTime += Number(user.watchTimeHours) || 0;
+    bucket.totalSatisfaction += Number(user.satisfactionScore) || 0;
+    bucket.totalEngagement += Number(user.engagementRate) || 0;
+  });
+
+  const trend = [];
+
+  for (let year = startYear; year <= currentYear; year++) {
+    const maxQuarter = year === currentYear ? currentQuarter : 4;
+    for (let quarter = 1; quarter <= maxQuarter; quarter++) {
+      const key = `${year}-Q${quarter}`;
+      const bucket = quarterMap.get(key) || {
+        count: 0,
+        totalWatchTime: 0,
+        totalSatisfaction: 0,
+        totalEngagement: 0,
+      };
+
+      trend.push({
+        period: `${quarterEndMonths[quarter - 1]} ${year}`,
+        totalUsers: bucket.count,
+        avgWatchTime: bucket.count ? bucket.totalWatchTime / bucket.count : null,
+        avgSatisfaction: bucket.count ? bucket.totalSatisfaction / bucket.count : null,
+        avgEngagement: bucket.count ? bucket.totalEngagement / bucket.count : null,
+      });
+    }
+  }
+
+  return trend;
+};
+
 function parseLoginDate(value) {
   if (!value) return null;
 

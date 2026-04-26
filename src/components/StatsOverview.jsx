@@ -21,13 +21,21 @@ const itemVariants = {
   },
 };
 
-export default function StatsOverview({ stats, onRevenueClick, isRevenuePanelOpen }) {
+export default function StatsOverview({
+  stats,
+  onKpiClick,
+  onRevenueClick,
+  isKpiPanelOpen,
+  isRevenuePanelOpen,
+}) {
   const cards = [
     {
       label: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
       icon: Users,
       color: 'from-netflix-red to-red-600',
+      clickable: true,
+      helperText: 'Click to view KPI trends',
     },
     {
       label: 'Avg Watch Time',
@@ -70,17 +78,34 @@ export default function StatsOverview({ stats, onRevenueClick, isRevenuePanelOpe
             key={index}
             variants={itemVariants}
             type="button"
-            onClick={card.clickable ? onRevenueClick : undefined}
+            onClick={
+              card.label === 'Total Users'
+                ? onKpiClick
+                : card.label === 'Revenue'
+                  ? onRevenueClick
+                  : undefined
+            }
             className={`group w-full text-left bg-gradient-to-br ${card.color} rounded-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl ${card.clickable ? 'cursor-pointer' : 'cursor-default'}`}
-            aria-label={card.clickable ? 'Toggle yearly revenue chart' : undefined}
+            aria-label={
+              card.label === 'Total Users'
+                ? 'Toggle KPI trends chart'
+                : card.label === 'Revenue'
+                  ? 'Toggle revenue chart'
+                  : undefined
+            }
           >
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium opacity-90 mb-1">{card.label}</p>
                 <p className="text-2xl font-bold">{card.value}</p>
-                {card.clickable && (
+                {card.label === 'Total Users' && (
                   <p className="text-xs opacity-85 mt-2">
-                    {isRevenuePanelOpen ? 'Click to hide yearly trend' : 'Click to view yearly trend'}
+                    {isKpiPanelOpen ? 'Click to hide KPI trends' : card.helperText}
+                  </p>
+                )}
+                {card.clickable && card.label === 'Revenue' && (
+                  <p className="text-xs opacity-85 mt-2">
+                    {isRevenuePanelOpen ? 'Click to hide revenue trend' : 'Click to view revenue trend'}
                   </p>
                 )}
               </div>
